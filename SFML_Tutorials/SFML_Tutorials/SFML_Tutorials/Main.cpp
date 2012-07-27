@@ -1,23 +1,38 @@
-#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+#include <iostream>
+
+
+sf::Mutex mutex;
+
+
+void func()
+{
+	//This function will run in a thread
+
+	for (int i = 0; i < 10; i++)
+	{
+		mutex.lock();
+		std::cout<<"I'm thread number one!"<<std::endl;
+		mutex.unlock();
+	}
+}
 
 int main ()
 {
-	sf::RenderWindow window(sf::VideoMode(300,200), "SFML works!");
-	sf::Text text("Hello World!");
+	//Create a thread with func as its entry point
+	sf::Thread thread(&func);
 
-	while(window.isOpen())
+	//Run it
+	thread.launch();
+
+	//The main thread continues to run
+
+	for (int j=0; j < 10; j++)
 	{
-		sf::Event sfmlevent;
-		while(window.pollEvent(sfmlevent))
-		{
-			if (sfmlevent.type == sf::Event::Closed)
-				window.close();
-		}
-
-		window.clear();
-		window.draw(text);
-		window.display();
+		mutex.lock();
+		std::cout<<"I am the main thread."<<std::endl;
+		mutex.unlock();
 	}
 
-	return (0);
+	return 0;
 }
